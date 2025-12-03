@@ -1,0 +1,10 @@
+name: SimpleHud
+version: 1.0.0
+main: de.jackson.simplehud.SimpleHudPlugin
+api-version: '1.21'
+author: Jackson199I
+description: Zeigt Koordinaten und Welttag in der Actionbar
+commands:
+  hud:
+    description: Schaltet die HUD Anzeige um
+    usage: /hud

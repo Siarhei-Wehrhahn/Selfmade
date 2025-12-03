@@ -1,0 +1,6 @@
+name: PlayerStats
+version: 1.0.0
+main: PlayerStatsPlugin
+api-version: '1.21'
+author: Jackson199I
+description: Zeigt pro Spieler Kills und Tode an (Tab-Liste und unter dem Namen)

@@ -1,0 +1,15 @@
+name: ChickenParty
+version: 1.0.0
+main: de.jackson.chickenparty.ChickenPartyPlugin
+api-version: '1.21'
+author: Jackson199I
+description: Spawnt eine Hühnerexplosion um den Spieler
+commands:
+  chickenparty:
+    description: Starte eine Hühnerparty um dich herum
+    usage: /chickenparty
+    permission: chickenparty.use
+permissions:
+  chickenparty.use:
+    description: Erlaubt das Starten der Hühnerparty
+    default: op

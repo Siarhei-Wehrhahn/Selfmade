@@ -1,0 +1,36 @@
+name: QuickWarp
+version: 1.0.0
+main: de.jackson.quickwarp.QuickWarpPlugin
+api-version: '1.21'
+author: Jackson199I
+description: Speichere serverweite Warppunkte und teleportiere dich dorthin
+commands:
+  setwarp:
+    description: Speichert deine aktuelle Position als Warp
+    usage: /setwarp <name>
+    permission: quickwarp.set
+  delwarp:
+    description: Löscht einen Warp
+    usage: /delwarp <name>
+    permission: quickwarp.del
+  warp:
+    description: Teleportiert dich zu einem Warp
+    usage: /warp <name>
+    permission: quickwarp.warp
+  warps:
+    description: Listet alle Warps auf
+    usage: /warps
+    permission: quickwarp.warps
+permissions:
+  quickwarp.set:
+    description: Darf neue Warps setzen
+    default: op
+  quickwarp.del:
+    description: Darf Warps löschen
+    default: op
+  quickwarp.warp:
+    description: Darf Warps benutzen
+    default: true
+  quickwarp.warps:
+    description: Darf Warps auflisten
+    default: true

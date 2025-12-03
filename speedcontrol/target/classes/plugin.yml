@@ -1,0 +1,19 @@
+name: SpeedControl
+version: 1.0.0
+main: de.jackson.speedcontrol.SpeedControlPlugin
+api-version: '1.21'
+author: Jackson199I
+description: Setzt deine Laufgeschwindigkeit per Chatbefehl
+commands:
+  setspeed:
+    description: Setze deine Laufgeschwindigkeit
+    usage: /setspeed <wert>
+    permission: speedcontrol.set
+  resetspeed:
+    description: Setze deine Geschwindigkeit zurück
+    usage: /resetspeed
+    permission: speedcontrol.set
+permissions:
+  speedcontrol.set:
+    description: Darf seine Geschwindigkeit ändern
+    default: op

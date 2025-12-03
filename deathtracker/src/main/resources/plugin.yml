@@ -1,0 +1,13 @@
+name: DeathTracker
+version: 1.0.0
+main: de.jackson.deathtracker.DeathTrackerPlugin
+api-version: '1.21'
+author: Jackson199I
+description: Merkt sich die letzte Todesposition und setzt den Kompass dorthin
+commands:
+  lastdeath:
+    description: Zeigt dir deine letzte Todesposition an
+    usage: /lastdeath
+  lastdeathfollow:
+    description: Setzt deinen Kompass auf deine letzte Todesposition
+    usage: /lastdeathfollow

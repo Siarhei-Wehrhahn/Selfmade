@@ -1,0 +1,19 @@
+name: FlyBot
+version: 1.0.0
+main: FlyBotPlugin
+api-version: '1.21'
+author: Jackson199I
+description: Lass dein Boot fliegen
+commands:
+  flybot:
+    description: Schaltet Flugmodus für dein aktuelles Boot an/aus
+    usage: /flybot
+    permission: flybot.use
+  flyboat:
+    description: Alias für /flybot
+    usage: /flyboat
+    permission: flybot.use
+permissions:
+  flybot.use:
+    description: Erlaubt die Benutzung des FlyBot
+    default: op
