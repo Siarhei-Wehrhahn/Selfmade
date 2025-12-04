@@ -134,7 +134,11 @@ public final class ChickenPartyPlugin extends JavaPlugin implements CommandExecu
 
             Chicken chicken = (Chicken) world.spawnEntity(spawnLoc, EntityType.CHICKEN);
 
-            // Langsam fallend und glühend
+            // Huhn bleibt an Ort und Stelle
+            chicken.setAI(false);           // keine Bewegung mehr
+            chicken.setCollidable(false);   // Spieler schubsen sie nicht weg
+
+            // Optional, falls du willst dass sie weich landen
             chicken.addPotionEffect(new PotionEffect(
                     PotionEffectType.SLOW_FALLING,
                     durationTicks,
@@ -142,6 +146,8 @@ public final class ChickenPartyPlugin extends JavaPlugin implements CommandExecu
                     false,
                     false
             ));
+
+            // Glühen für Party Optik
             chicken.addPotionEffect(new PotionEffect(
                     PotionEffectType.GLOWING,
                     durationTicks,

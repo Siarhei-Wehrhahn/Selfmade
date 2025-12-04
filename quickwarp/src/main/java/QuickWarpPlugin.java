@@ -46,9 +46,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
-        loadWarpStonesFromConfig();
-
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info("WarpStonesPlugin aktiviert");
     }

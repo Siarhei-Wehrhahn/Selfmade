@@ -1,0 +1,8 @@
+cooldown-seconds: 30
+spawn-count: 20
+radius: 3.0
+duration-ticks: 200
+
+enable-heart-particles: true
+enable-cloud-particles: true
+enable-sound: true
