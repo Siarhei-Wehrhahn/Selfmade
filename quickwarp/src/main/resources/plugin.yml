@@ -2,5 +2,5 @@ name: QuickWarp
 main: de.jackson.warpstones.QuickWarpPlugin
 version: 1.0.0
 api-version: "1.21"
-author: DeinName
+author: Jackson199I
 description: Warp-Steine aus Treppen-Ring und Edelsteinblock
