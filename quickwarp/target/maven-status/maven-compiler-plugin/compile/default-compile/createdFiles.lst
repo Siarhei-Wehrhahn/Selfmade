@@ -1,1 +1,5 @@
-de\jackson\quickwarp\QuickWarpPlugin.class
+de\jackson\warpstones\QuickWarpPlugin$WarpMenuHolder.class
+de\jackson\warpstones\QuickWarpPlugin$WarpStone.class
+de\jackson\warpstones\QuickWarpPlugin$PendingWarp.class
+de\jackson\warpstones\QuickWarpPlugin.class
+de\jackson\warpstones\QuickWarpPlugin$1.class
