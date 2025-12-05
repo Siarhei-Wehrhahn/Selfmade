@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 public final class QuickWarpPlugin extends JavaPlugin implements Listener {
 
-    // Materialien die als Mittelblock erlaubt sind
     private static final Set<Material> CENTER_BLOCKS = EnumSet.of(
             Material.GOLD_BLOCK,
             Material.COPPER_BLOCK,
@@ -37,16 +36,17 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
             Material.NETHERITE_BLOCK
     );
 
-    // Alle aktiven Warpsteine nach Center Location
     private final Map<Location, WarpStone> warpByLocation = new HashMap<>();
-    // Warpsteine pro Spieler
     private final Map<UUID, List<WarpStone>> warpsByOwner = new HashMap<>();
-    // Spieler die gerade einen Namen eintippen
     private final Map<UUID, PendingWarp> pendingNaming = new HashMap<>();
 
     @Override
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
+
+        // Beim Start aus Config laden
+        loadWarpStonesFromConfig();
+
         getLogger().info("WarpStonesPlugin aktiviert");
     }
 
@@ -56,34 +56,28 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
         getLogger().info("WarpStonesPlugin deaktiviert");
     }
 
-    // ---------------- Event Handler ----------------
-
     @EventHandler(ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlockPlaced();
         Player player = event.getPlayer();
         Material type = block.getType();
 
-        // Nur reagieren wenn ein möglicher Mittelblock gesetzt wird
         if (!CENTER_BLOCKS.contains(type)) {
             return;
         }
 
-        // Formation prüfen 3x3 Platte außen Treppen
         if (!isValidWarpFormation(block)) {
             return;
         }
 
-        Location centerLoc = block.getLocation();
+        Location centerLoc = cleanLocation(block.getLocation());
 
-        // Bereits existierender Warp an dieser Stelle
-        if (warpByLocation.containsKey(cleanLocation(centerLoc))) {
+        if (warpByLocation.containsKey(centerLoc)) {
             player.sendMessage(ChatColor.RED + "Hier existiert bereits ein Warpstein");
             return;
         }
 
-        // Pending Eintrag anlegen
-        PendingWarp pending = new PendingWarp(cleanLocation(centerLoc), player.getUniqueId());
+        PendingWarp pending = new PendingWarp(centerLoc, player.getUniqueId());
         pendingNaming.put(player.getUniqueId(), pending);
 
         player.sendMessage(ChatColor.GOLD + "Du hast einen Warpstein gebaut");
@@ -120,7 +114,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
             return;
         }
 
-        // Warp auf dem Main Thread erstellen
         Bukkit.getScheduler().runTask(this, () -> {
             createWarpStone(player, pending, message);
         });
@@ -148,11 +141,7 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
             return;
         }
 
-        if (!warp.getOwner().equals(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Du bist nicht der Besitzer dieses Warpsteins");
-            return;
-        }
-
+        // Jeder Spieler darf den Warpstein benutzen
         openWarpMenu(player, warp);
     }
 
@@ -161,7 +150,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
         Block block = event.getBlock();
         Location brokenLoc = cleanLocation(block.getLocation());
 
-        // Finde Warpstein dessen 3x3 Formation diesen Block enthält
         WarpStone toRemove = null;
 
         for (WarpStone warp : warpByLocation.values()) {
@@ -180,7 +168,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
         Player breaker = event.getPlayer();
         breaker.sendMessage(ChatColor.RED + "Warpstein '" + toRemove.getName() + "' wurde entfernt");
 
-        // Besitzer informieren falls online
         if (!breaker.getUniqueId().equals(toRemove.getOwner())) {
             Player owner = Bukkit.getPlayer(toRemove.getOwner());
             if (owner != null && owner.isOnline()) {
@@ -214,10 +201,13 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
         }
 
         String rawName = ChatColor.stripColor(meta.getDisplayName());
-        UUID uuid = player.getUniqueId();
 
-        List<WarpStone> playerWarps = warpsByOwner.getOrDefault(uuid, Collections.emptyList());
-        Optional<WarpStone> targetOpt = playerWarps.stream()
+        Location currentCenter = holder.getCenter();
+        List<WarpStone> destinations = warpByLocation.values().stream()
+                .filter(w -> !w.getCenter().equals(currentCenter))
+                .collect(Collectors.toList());
+
+        Optional<WarpStone> targetOpt = destinations.stream()
                 .filter(w -> w.getName().equals(rawName))
                 .findFirst();
 
@@ -241,8 +231,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
         player.sendMessage(ChatColor.GREEN + "Teleportiert zu Warp '" + target.getName() + "'");
     }
 
-    // ---------------- Logik ----------------
-
     private void createWarpStone(Player player, PendingWarp pending, String name) {
         pendingNaming.remove(player.getUniqueId());
 
@@ -253,7 +241,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
             return;
         }
 
-        // Sicherstellen dass die Formation noch existiert
         if (!isValidWarpFormation(world.getBlockAt(center))) {
             player.sendMessage(ChatColor.RED + "Die Warpstein Struktur ist nicht mehr vollständig");
             return;
@@ -298,15 +285,9 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
     }
 
     private void openWarpMenu(Player player, WarpStone current) {
-        List<WarpStone> playerWarps = warpsByOwner.getOrDefault(player.getUniqueId(), Collections.emptyList());
+        List<WarpStone> allWarps = new ArrayList<>(warpByLocation.values());
 
-        if (playerWarps.isEmpty()) {
-            player.sendMessage(ChatColor.RED + "Du hast noch keine Warpsteine");
-            return;
-        }
-
-        // Optional aktuell angeklickten Warp nicht anzeigen
-        List<WarpStone> destinations = playerWarps.stream()
+        List<WarpStone> destinations = allWarps.stream()
                 .filter(w -> !w.getCenter().equals(current.getCenter()))
                 .collect(Collectors.toList());
 
@@ -321,7 +302,7 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
         Inventory inv = Bukkit.createInventory(
                 new WarpMenuHolder(current.getCenter()),
                 size,
-                ChatColor.DARK_PURPLE + "Deine Warpsteine"
+                ChatColor.DARK_PURPLE + "Warpsteine"
         );
 
         for (int i = 0; i < destinations.size() && i < size; i++) {
@@ -346,7 +327,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
         player.openInventory(inv);
     }
 
-    // Prüfen ob die 3x3 Struktur passt
     private boolean isValidWarpFormation(Block centerBlock) {
         if (!CENTER_BLOCKS.contains(centerBlock.getType())) {
             return false;
@@ -379,7 +359,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
         return true;
     }
 
-    // Prüfen ob ein Block Teil der 3x3 Formation eines Warpsteins ist
     private boolean isPartOfFormation(Location broken, Location center) {
         if (broken.getWorld() == null || center.getWorld() == null) {
             return false;
@@ -405,8 +384,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
                 loc.getBlockZ()
         );
     }
-
-    // ---------------- Config Laden Speichern ----------------
 
     private void loadWarpStonesFromConfig() {
         warpByLocation.clear();
@@ -460,8 +437,6 @@ public final class QuickWarpPlugin extends JavaPlugin implements Listener {
         cfg.set("warpstones", list);
         saveConfig();
     }
-
-    // ---------------- Innere Klassen ----------------
 
     private record PendingWarp(Location center, UUID owner) {}
 

@@ -1,0 +1,17 @@
+name: CreatorOS
+main: de.jackson.creatoros.CreatorOSPlugin
+version: 1.0.0
+api-version: '1.21'
+author: Jackson
+description: Seasons, Quests und Events für SMP Server
+
+commands:
+  creatoros:
+    description: Hauptkommando für CreatorOS
+    usage: /creatoros
+    permission: creatoros.admin
+
+permissions:
+  creatoros.admin:
+    description: Zugriff auf alle CreatorOS Admin Befehle
+    default: op

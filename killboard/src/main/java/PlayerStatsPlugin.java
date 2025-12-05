@@ -1,3 +1,6 @@
+// package weglassen oder dein eigenes eintragen, z.B.
+// package de.jackson.playerstats;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -14,15 +17,17 @@ public final class PlayerStatsPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        setupScoreboard();
+        // Scoreboard einrichten
+        setupScoreboard();        // Kills + Tode
+        setupHealthBelowName();   // Herzen unter Namen
+
+        // Bei Reload auch für schon online Spieler anwenden
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            applyScoreboard(player);
+        }
 
         // Listener registrieren
-        Bukkit.getPluginManager().registerEvents(this, this);
-
-        // Für alle Spieler die schon online sind (bei /reload usw.)
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            applyScoreboard(p);
-        }
+        getServer().getPluginManager().registerEvents(this, this);
 
         getLogger().info("PlayerStats wurde aktiviert");
     }
@@ -32,6 +37,37 @@ public final class PlayerStatsPlugin extends JavaPlugin implements Listener {
         getLogger().info("PlayerStats wurde deaktiviert");
     }
 
+    // --------------------------------------------------
+    // Herzen unter dem Spielernamen
+    // --------------------------------------------------
+    private void setupHealthBelowName() {
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        if (manager == null) {
+            getLogger().warning("ScoreboardManager ist null, Health Anzeige wird nicht aktiviert");
+            return;
+        }
+
+        Scoreboard board = manager.getMainScoreboard();
+
+        // eigenes Objective für Health anlegen oder holen
+        Objective health = board.getObjective("playerstats_health");
+        if (health == null) {
+            health = board.registerNewObjective(
+                    "playerstats_health",
+                    "health",
+                    ChatColor.RED + "❤"
+            );
+        } else {
+            health.setDisplayName(ChatColor.RED + "❤");
+        }
+
+        // unter dem Namen anzeigen
+        health.setDisplaySlot(DisplaySlot.BELOW_NAME);
+    }
+
+    // --------------------------------------------------
+    // Kills im TAB, Tode rechts in der Sidebar
+    // --------------------------------------------------
     private void setupScoreboard() {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         if (manager == null) {
@@ -59,7 +95,7 @@ public final class PlayerStatsPlugin extends JavaPlugin implements Listener {
             kills.setDisplayName(ChatColor.GREEN + "Kills");
         }
 
-        // Tode unter dem Namen (deathCount)
+        // Tode in der Sidebar (deathCount)
         Objective deaths = board.getObjective("stats_deaths");
         if (deaths == null) {
             try {
@@ -73,11 +109,14 @@ public final class PlayerStatsPlugin extends JavaPlugin implements Listener {
             }
         }
         if (deaths != null) {
-            deaths.setDisplaySlot(DisplaySlot.BELOW_NAME);
+            deaths.setDisplaySlot(DisplaySlot.SIDEBAR);
             deaths.setDisplayName(ChatColor.RED + "Tode");
         }
     }
 
+    // --------------------------------------------------
+    // Spielern das Scoreboard zuweisen
+    // --------------------------------------------------
     private void applyScoreboard(Player player) {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         if (manager == null) {

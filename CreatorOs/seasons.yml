@@ -1,0 +1,25 @@
+seasons:
+  example-winter-2025:
+    id: "example-winter-2025"
+    name: "Winter 2025"
+    description: "Frostige erste Season mit einfachen Quests"
+    startDate: "2025-12-01"
+    endDate: "2026-02-28"
+    status: "PLANNED"
+    quests:
+      diamonds-collector:
+        id: "diamonds-collector"
+        name: "Diamantenjäger"
+        description: "Sammle 32 Diamanten"
+        type: "GATHER"
+        targetAmount: 32
+        targetId: "DIAMOND"
+        repeatable: false
+        rewards:
+          "0":
+            type: "ITEM"
+            itemMaterial: "EMERALD"
+            itemAmount: 5
+          "1":
+            type: "MONEY"
+            moneyAmount: 1000.0
